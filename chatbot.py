@@ -10,6 +10,9 @@ def main():
     # Load your token and create an Updater for your Bot
     config = configparser.ConfigParser()
     config.read('config.ini')
+    print(config['REDIS']['HOST'])  # 打印主机信息
+    print(config['REDIS']['PASSWORD'])  # 打印密码信息
+    print(config['REDIS']['USER_NAME'])  # 打印用户名信息
     updater = Updater(token=(config['TELEGRAM']['ACCESS_TOKEN']), use_context=True)
     dispatcher = updater.dispatcher
     global redis1
@@ -37,6 +40,7 @@ def main():
     # on different commands - answer in Telegram
     dispatcher.add_handler(CommandHandler("add", add))
     dispatcher.add_handler(CommandHandler("help", help_command))
+    dispatcher.add_handler(CommandHandler("hello", hello_command))  # new register command handler
 
     # To start the bot:
     updater.start_polling()
@@ -65,10 +69,16 @@ def add(update: Update, context: CallbackContext) -> None:
         redis1.incr(msg)
 
         update.message.reply_text('You have said ' + msg + ' for ' +
-                                  redis1.get(msg).decode('UTF-8') + ' times.')
+                                  redis1.get(msg) + ' times.')
 
     except (IndexError, ValueError):
         update.message.reply_text('Usage: /add <keyword>')
+
+
+def hello_command(update: Update, context: CallbackContext) -> None:
+    """Send a message when the command /hello Kevin is issued."""
+    if context.args and context.args[0].lower() == 'kevin':
+        update.message.reply_text('Good day, Kevin!')
 
 from ChatGPT_HKBU import HKBU_ChatGPT
 
